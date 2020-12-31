@@ -1,4 +1,4 @@
-console.log('hi');
+
 enum STATUS {
   Pending,
   Finished,
@@ -6,11 +6,13 @@ enum STATUS {
 
 type dType = string;
 
+//Validation
 interface TodoInputValidation {
   text: dType;
   min?: number;
 }
 
+//validattion for todo input
 function validate(todo: TodoInputValidation) {
   let isValid = true;
   if (todo.min && todo.text.length < todo.min) {
@@ -19,10 +21,13 @@ function validate(todo: TodoInputValidation) {
   return isValid;
 }
 
+//TodoInput structure
 class TodoStructure {
   constructor(public id: dType, public input: dType, public status: STATUS) {}
 }
 
+
+//state management- global storage of todo items
 class AppState {
   protected todos: TodoStructure[];
   private static instance: AppState;
@@ -39,10 +44,13 @@ class AppState {
     return this.instance;
   }
 
+  //  todoItems rerender when todoList changes
   protected getTodoList() {
     new TodoList(this.todos, 'Pending');
     new TodoList(this.todos, 'Finished');
   }
+
+  //addTodo
   addTodo(id: string, input: string, status: STATUS) {
     const todoItem = new TodoStructure(id, input, status);
     this.todos.push(todoItem);
@@ -50,11 +58,13 @@ class AppState {
     this.getTodoList();
   }
 
+  //set method - set todoItems after it is edited/deleted
   set Todos(todoItems: TodoStructure[]) {
     this.todos = [...todoItems];
     this.getTodoList();
   }
 
+  //get method - to access todoList  
   get Todos() {
     return this.todos;
   }
@@ -62,6 +72,7 @@ class AppState {
 
 const appState = AppState.getInstance();
 
+//creating a list which appends to ul
 class TodoItem {
   tempElement: HTMLTemplateElement;
   ulElement: HTMLUListElement;
@@ -92,7 +103,7 @@ class TodoItem {
     this.ulElement.querySelector('.del')!.id = this.id;
     this.ulElement.querySelector('.edit')!.id = this.id;
   }
-
+  //delete by its id and updating todolist using set method
   private deleteItem(id: string, todoItems: TodoStructure[]) {
     const removedTodo = todoItems.filter((todo) => todo.id !== id);
     appState.Todos = removedTodo;
@@ -108,6 +119,7 @@ class TodoItem {
     this.deleteItem(id, todoItems);
   }
 
+  //list item selected is transfered to text input field
   private editHandler() {
     if (document.querySelector('input')!.value) {
       alert('Todo already selected');
@@ -132,15 +144,15 @@ class TodoItem {
       .addEventListener('click', this.editHandler.bind(this));
   }
 }
+
+//looping over todoList and creating an object for individual todo item
 class TodoList {
   //private assignedTodo:TodoStructure=[];
   constructor(
     private todoItems: TodoStructure[],
     private type: 'Pending' | 'Finished',
-    private assignedTodo: TodoStructure[] = []
+    //private assignedTodo: TodoStructure[] = []
   ) {
-    //      this.todoItems=appState.Todos;
-    //this.config();
     this.display();
     console.log(this.type);
   }
@@ -150,7 +162,7 @@ class TodoList {
     
       document.querySelector('ul')!.innerText = '';
     
-    console.log(this.assignedTodo);
+    //console.log(this.assignedTodo);
     //this.config();
     for (let todo of this.todoItems) {
       //console.log(todo);
@@ -161,6 +173,7 @@ class TodoList {
   
 }
 
+// get  todoInput,validate and add
 class TodoInput {
   todoInput: HTMLInputElement;
   submitButton: HTMLButtonElement;
@@ -187,6 +200,7 @@ class TodoInput {
   private clearFormInput() {
     this.todoInput.value = '';
   }
+  //adding todoInput by using addTodo method(in AppState)
   private submitHandler(e: Event) {
     e.preventDefault();
     console.log('event');
